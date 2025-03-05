@@ -44,25 +44,141 @@
 
 // export default Inputbox
 
-import React, { useState, useRef } from 'react';
+// import React, { useState, useRef } from 'react';
+// import { MdOutlineSettingsVoice } from "react-icons/md";
+// import { FaCirclePlus } from "react-icons/fa6";
 
+// interface SendMessageProps {
+//   onSendMessage: (message: string) => void;
+// }
+
+// const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
+//   // State for recording functionality
+//   const [isRecording, setIsRecording] = useState<boolean>(false);
+//   const [transcription, setTranscription] = useState<string>('');
+//   const mediaRecorder = useRef<MediaRecorder | null>(null);
+//   const audioChunks = useRef<Blob[]>([]);
+
+//   // State for input box functionality
+//   const [input, setInput] = useState<string>('');
+
+//   // Handle recording button click
+//   const handleRecordButtonClick = async () => {
+//     if (!isRecording) {
+//       try {
+//         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+//         mediaRecorder.current = new MediaRecorder(stream);
+
+//         mediaRecorder.current.ondataavailable = (event) => {
+//           audioChunks.current.push(event.data);
+//         };
+
+//         mediaRecorder.current.onstop = async () => {
+//           const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+//           const formData = new FormData();
+//           formData.append('audio', audioBlob, 'recording.webm');
+
+//           try {
+//             const response = await fetch('http://localhost:5000/transcribe', {
+//               method: 'POST',
+//               body: formData,
+//             });
+//             const result = await response.json();
+//             setTranscription(result.text);
+//             setInput(result.text); // Automatically populate the input box with the transcription
+//           } catch (error) {
+//             console.error('Error:', error);
+//           }
+
+//           audioChunks.current = [];
+//           stream.getTracks().forEach(track => track.stop());
+//         };
+
+//         mediaRecorder.current.start();
+//         setIsRecording(true);
+//       } catch (err) {
+//         console.error('Error accessing microphone:', err);
+//       }
+//     } else {
+//       mediaRecorder.current?.stop();
+//       setIsRecording(false);
+//     }
+//   };
+
+//   // Handle sending a message
+//   const handleSendMessage = () => {
+//     if (input.trim() !== '') {
+//       onSendMessage(input);
+//       setInput('');
+//     }
+//   };
+
+//   // Handle Enter key press in the input box
+//   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+//     if (event.key === 'Enter') {
+//       handleSendMessage();
+//     }
+//   };
+
+//   return (
+//     <div className="container mx-52 max-w-[53rem] p-4 bg-white rounded-lg shadow-lg">
+//       {/* Input Box and Buttons */}
+//       <div className="flex items-center gap-2">
+//         {/* Voice Recorder Button */}
+//         <button
+//           onClick={handleRecordButtonClick}
+//           className={`p-2 rounded-full ${
+//             isRecording ? 'bg-red-500' : 'bg-blue-800'
+//           } text-white hover:opacity-80 transition-all`}
+//         >
+//           <MdOutlineSettingsVoice className="h-6 w-6" />
+//         </button>
+
+//         {/* Input Box */}
+//         <input
+//           value={input}
+//           onChange={(e) => setInput(e.target.value)}
+//           onKeyDown={handleKeyDown}
+//           placeholder="Type a message..."
+//           className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
+//         />
+
+//         {/* Send Button */}
+//         <button
+//           onClick={handleSendMessage}
+//           className="p-2 bg-blue-800 text-white rounded-lg hover:bg-blue-600 transition-all"
+//         >
+//           Send
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default ChatInterface;
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+import React, { useState, useRef } from 'react';
+import { MdOutlineSettingsVoice } from "react-icons/md";
+import { FaPaperPlane } from "react-icons/fa6"; // Import FaPaperPlane for a send icon
+import { LuImagePlus } from "react-icons/lu";
 
 interface SendMessageProps {
-
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, imageUrl?: string) => void;
 }
 
 const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
-  // State for recording functionality
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [transcription, setTranscription] = useState<string>('');
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
-
-  // State for input box functionality
   const [input, setInput] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [isImageSelected, setIsImageSelected] = useState<boolean>(false)
 
-  // Handle recording button click
   const handleRecordButtonClick = async () => {
     if (!isRecording) {
       try {
@@ -85,7 +201,7 @@ const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
             });
             const result = await response.json();
             setTranscription(result.text);
-            setInput(result.text); // Automatically populate the input box with the transcription
+            setInput(result.text);
           } catch (error) {
             console.error('Error:', error);
           }
@@ -105,68 +221,50 @@ const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
     }
   };
 
-  // Handle sending a message
   const handleSendMessage = () => {
-    if (input.trim() !== '') {
-      onSendMessage(input);
+    if (input.trim() !== '' || imageUrl.trim() !== '') {
+      onSendMessage(input, imageUrl);
       setInput('');
+      setImageUrl('');
+      setIsImageSelected(false);
     }
   };
 
-  // Handle Enter key press in the input box
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleSendMessage();
     }
   };
 
-  return (
-    <div className="container mx-52 max-w-[53.5rem] p-4 bg-white rounded-lg shadow-lg">
-      {/* Transcription Display */}
-      {/* <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-        <p className="text-gray-700">{transcription || 'Transcription will appear here...'}</p>
-      </div> */}
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+        setIsImageSelected(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-      {/* Input Box and Buttons */}
+  return (
+    <div className="container mx-52 max-w-[53rem] p-4 bg-white rounded-lg shadow-lg">
       <div className="flex items-center gap-2">
+        {/* Add Button with LuImagePlus Icon */}
+        <label className="p-2 bg-blue-800 text-white rounded-lg hover:bg-blue-600 transition-all cursor-pointer">
+          <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+          <LuImagePlus className="h-6 w-6" />
+        </label>
+
         {/* Voice Recorder Button */}
         <button
           onClick={handleRecordButtonClick}
           className={`p-2 rounded-full ${
-            isRecording ? 'bg-red-500' : 'bg-blue-500'
+            isRecording ? 'bg-red-500' : 'bg-blue-800'
           } text-white hover:opacity-80 transition-all`}
         >
-          {isRecording ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0-4H3m15 0h3m-3-7a7 7 0 00-7-7m0 0a7 7 0 00-7 7m7-7v4m0-4h14m-14 0H3"
-              />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0-4H3m15 0h3m-3-7a7 7 0 00-7-7m0 0a7 7 0 00-7 7m7-7v4m0-4h14m-14 0H3"
-              />
-            </svg>
-          )}
+          <MdOutlineSettingsVoice className="h-6 w-6" />
         </button>
 
         {/* Input Box */}
@@ -178,12 +276,14 @@ const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
           className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
         />
 
-        {/* Send Button */}
+        {/* Send Button with FaPaperPlane Icon */}
         <button
           onClick={handleSendMessage}
-          className="p-2 bg-blue-800 text-white rounded-lg hover:bg-blue-600 transition-all"
+          className={`p-2 ${
+            isImageSelected ? 'bg-red-500' : 'bg-blue-800' // Change color based on image selection
+          } text-white rounded-lg hover:opacity-80 transition-all`}
         >
-          Send
+          <FaPaperPlane className="h-6 w-6" />
         </button>
       </div>
     </div>

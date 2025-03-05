@@ -4,23 +4,25 @@ import Chatbot from "@/app/components/chatbot";
 import Inputbox from "./components/input";
 import Logo from "./components/logo";
 
+
 type Message = {
   role: string;
   content: string;
+  imageUrl?: string;
 };
 
 export default function Home() {
   const [messages, setMessages] =  useState<Message[]>([]);
 
-  const handleSendMessage =async (message: string)=> {
-    setMessages([...messages , {role:"user", content: message}])
+  const handleSendMessage =async (message: string, imageUrl?: string)=> {
+    setMessages([...messages , {role:"user", content: message, imageUrl}])
     try{
       const response = await fetch("http://localhost:5000/chat",{
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({message})
+        body: JSON.stringify({message, image_url: imageUrl})
       })
       const data = await response.json()
       if(response.ok){
@@ -39,7 +41,7 @@ export default function Home() {
       setMessages([]);
     };
   return (
-    <div className="min-h-screen max-h-fit bg-gray-100">
+    <div className="min-h-screen max-h-fit bg-gray-100 ">
        
       <Logo onClear={handleClearMessages}/>
      <Chatbot messages={messages}/>
@@ -48,3 +50,4 @@ export default function Home() {
     </div>
   );
 }
+
