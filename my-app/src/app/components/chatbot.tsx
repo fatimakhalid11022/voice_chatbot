@@ -49,5 +49,3 @@ const Chatbot: React.FC<ChatbotProps> = ({ messages }) => {
 };
 
 export default Chatbot;
-
-

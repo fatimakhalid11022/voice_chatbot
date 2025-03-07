@@ -165,6 +165,7 @@ import React, { useState, useRef } from 'react';
 import { MdOutlineSettingsVoice } from "react-icons/md";
 import { FaPaperPlane } from "react-icons/fa6"; // Import FaPaperPlane for a send icon
 import { LuImagePlus } from "react-icons/lu";
+import { RxCross2 } from "react-icons/rx"
 
 interface SendMessageProps {
   onSendMessage: (message: string, imageUrl?: string) => void;
@@ -247,17 +248,39 @@ const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
       reader.readAsDataURL(file);
     }
   };
+  const handleRemoveImage = () => {
+    setImageUrl('');
+    setIsImageSelected(false);
+  };
+
 
   return (
     <div className="container mx-52 max-w-[53rem] p-4 bg-white rounded-lg shadow-lg">
+      {/* Image Preview Section */}
+      {imageUrl && (
+        <div className="relative mb-2">
+          <div className="relative inline-block">
+            <img
+              src={imageUrl}
+              alt="Selected content"
+              className="h-32 w-32 object-cover rounded-lg border border-gray-200"
+            />
+            <button
+              onClick={handleRemoveImage}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-all"
+            >
+              <RxCross2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-2">
-        {/* Add Button with LuImagePlus Icon */}
         <label className="p-2 bg-blue-800 text-white rounded-lg hover:bg-blue-600 transition-all cursor-pointer">
           <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
           <LuImagePlus className="h-6 w-6" />
         </label>
 
-        {/* Voice Recorder Button */}
         <button
           onClick={handleRecordButtonClick}
           className={`p-2 rounded-full ${
@@ -267,7 +290,6 @@ const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
           <MdOutlineSettingsVoice className="h-6 w-6" />
         </button>
 
-        {/* Input Box */}
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -276,11 +298,10 @@ const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
           className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
         />
 
-        {/* Send Button with FaPaperPlane Icon */}
         <button
           onClick={handleSendMessage}
           className={`p-2 ${
-            isImageSelected ? 'bg-red-500' : 'bg-blue-800' // Change color based on image selection
+            isImageSelected ? 'bg-red-500' : 'bg-blue-800'
           } text-white rounded-lg hover:opacity-80 transition-all`}
         >
           <FaPaperPlane className="h-6 w-6" />
@@ -291,3 +312,6 @@ const ChatInterface: React.FC<SendMessageProps> = ({ onSendMessage }) => {
 };
 
 export default ChatInterface;
+
+
+
