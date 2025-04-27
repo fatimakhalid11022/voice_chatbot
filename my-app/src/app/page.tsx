@@ -1,52 +1,53 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import Chatbot from "@/app/components/chatbot";
 import Inputbox from "./components/input";
 import Logo from "./components/logo";
 
-
 type Message = {
   role: string;
   content: string;
-  imageUrl?: string;
+  imageUrls?: string[];
 };
 
 export default function Home() {
-  const [messages, setMessages] =  useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  const handleSendMessage =async (message: string, imageUrl?: string)=> {
-    setMessages([...messages , {role:"user", content: message, imageUrl}])
-    try{
-      const response = await fetch("http://localhost:5000/chat",{
+  const handleSendMessage = async (message: string, imageUrls?: string[]) => {
+    const userMessage = { role: "user", content: message, imageUrls: imageUrls || [] };
+    setMessages([...messages, userMessage]);
+    console.log("Sending:", { message, image_urls: imageUrls || [] }); // Debug log
+
+
+    try {
+      const response = await fetch("http://152.53.129.172:5010/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({message, image_url: imageUrl})
-      })
-      const data = await response.json()
-      if(response.ok){
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, image_urls: imageUrls || [] }),
+      });
+      const data = await response.json();
+      if (response.ok) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { role: "bot", content: data.response }
-        ])
+          { role: "bot", content: data.response },
+        ]);
       } else {
-        console.error("Error",data.error)}
-      } catch(error){
-        console.error("Error:" ,error)
-      
+        console.error("Error:", data.error);
       }
+    } catch (error) {
+      console.error("Error:", error);
     }
-    const handleClearMessages = () => {
-      setMessages([]);
-    };
+  };
+
+  const handleClearMessages = () => {
+    setMessages([]);
+  };
+
   return (
-    <div className="min-h-screen max-h-fit bg-gray-100 ">
-       
-      <Logo onClear={handleClearMessages}/>
-     <Chatbot messages={messages}/>
-     <Inputbox onSendMessage={handleSendMessage}/>
-     
+    <div className="min-h-screen max-h-fit bg-gray-100">
+      <Logo onClear={handleClearMessages} />
+      <Chatbot messages={messages} />
+      <Inputbox onSendMessage={handleSendMessage} />
     </div>
   );
 }
