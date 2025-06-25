@@ -20,7 +20,8 @@ export default function Home() {
 
 
     try {
-      const response = await fetch("http://152.53.129.172:5010/chat", {
+      const response = await fetch("https://fatimachatapi.informaticasystems.com/chat", {
+      // const response = await fetch("http://localhost:5000/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, image_urls: imageUrls || [] }),
